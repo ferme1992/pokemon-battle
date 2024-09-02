@@ -11,12 +11,13 @@ import { FC, useEffect, useState } from "react";
 import PokemonCard from "./PokemonCard";
 import StatBar from "./StatBar";
 import { findAll } from "../services/Pokemon.service";
+import { pokemonBattle } from "../services/Battles.service";
 
 const PokemonBattleUI: FC = () => {
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
   const [opponent, setOpponent] = useState<Pokemon | null>(null);
-  const [battleResult, setBattleResult] = useState<string | null>(null);
+  const [battleWinner, setBattleWinner] = useState<Pokemon | null>(null);
 
   useEffect(() => {
     const getPokemons = async () => {
@@ -27,23 +28,38 @@ const PokemonBattleUI: FC = () => {
     getPokemons();
   }, []);
 
+  const getRandomOpponent = (): Pokemon | null => {
+    const possibleOpponents = pokemons.filter(
+      (pokemon) => pokemon.id !== selectedPokemon?.id
+    );
+    if (possibleOpponents.length === 0) return null;
+
+    const randomIndex = Math.floor(Math.random() * possibleOpponents.length);
+    return possibleOpponents[randomIndex];
+  };
+
   const handlePokemonSelect = (pokemon: Pokemon) => {
     setSelectedPokemon(pokemon);
     setOpponent(null);
-    setBattleResult(null);
+    setBattleWinner(null);
   };
 
-  const startBattle = () => {
-    if (selectedPokemon) {
-      const randomOpponent = pokemons.find((p) => p.id !== selectedPokemon.id);
-      if (randomOpponent) {
-        setOpponent(randomOpponent);
-        // Simple battle logic (will be expanded)
-        const result =
-          Math.random() > 0.5 ? selectedPokemon.name : randomOpponent.name;
-        setBattleResult(`${result} wins!`);
-      }
+  const startBattle = async () => {
+    if (!selectedPokemon) return;
+
+    if (battleWinner) {
+      setBattleWinner(null);
     }
+
+    const randomOpponent = getRandomOpponent();
+
+    if (!randomOpponent) return;
+
+    setOpponent(randomOpponent);
+
+    const result = await pokemonBattle(selectedPokemon.id, randomOpponent.id);
+    setBattleWinner(result);
+    console.log(result);
   };
 
   return (
@@ -70,7 +86,7 @@ const PokemonBattleUI: FC = () => {
         ))}
       </Grid2>
 
-      {battleResult && (
+      {battleWinner && (
         <Box
           bgcolor="info.main"
           color="info.contrastText"
@@ -78,9 +94,7 @@ const PokemonBattleUI: FC = () => {
           mb={2}
           borderRadius={1}
         >
-          <Typography variant="h6" align="center">
-            {battleResult}
-          </Typography>
+          <Typography variant="h6">{`${battleWinner.name} wins!`}</Typography>
         </Box>
       )}
 
