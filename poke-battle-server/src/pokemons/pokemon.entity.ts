@@ -1,6 +1,7 @@
+import { COLUMN_TYPE_INTEGER, ENTITY_NAME } from "src/constants/pokemon";
 import { Entity, PrimaryColumn, Column } from 'typeorm';
 
-@Entity('pokemons')
+@Entity(ENTITY_NAME)
 export class Pokemon {
   @PrimaryColumn()
   id: string;
@@ -8,16 +9,16 @@ export class Pokemon {
   @Column()
   name: string;
 
-  @Column('integer')
+  @Column(COLUMN_TYPE_INTEGER)
   attack: number;
 
-  @Column('integer')
+  @Column(COLUMN_TYPE_INTEGER)
   defense: number;
 
-  @Column('integer')
+  @Column(COLUMN_TYPE_INTEGER)
   hp: number;
 
-  @Column('integer')
+  @Column(COLUMN_TYPE_INTEGER)
   speed: number;
 
   @Column()

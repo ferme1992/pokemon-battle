@@ -11,6 +11,15 @@ import PokemonCard from "./PokemonSelectionCard";
 import { findAll } from "../services/Pokemon.service";
 import { pokemonBattle } from "../services/Battles.service";
 import PokemonBattleCard from "./PokemonBattleCard";
+import {
+  BATTLE_TITLE,
+  BATTLE_WINNER_TEXT,
+  FETCH_POKEMON_ERROR,
+  OPPONENT_SELECTION_PROMPT,
+  SELECT_POKEMON_PROMPT,
+  SIMULATE_BATTLE_ERROR,
+  START_BATTLE_BUTTON_TEXT,
+} from "../constants/battleUIConstants";
 
 const PokemonBattleUI: FC = () => {
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
@@ -27,7 +36,7 @@ const PokemonBattleUI: FC = () => {
         const fetchedPokemons = await findAll();
         setPokemons(fetchedPokemons);
       } catch (err) {
-        setError("Failed to fetch Pokémon data.");
+        setError(FETCH_POKEMON_ERROR);
         console.error(err);
       }
     };
@@ -67,7 +76,7 @@ const PokemonBattleUI: FC = () => {
       const result = await pokemonBattle(selectedPokemon.id, randomOpponent.id);
       setBattleWinner(result);
     } catch (err) {
-      setError("Failed to simulate battle.");
+      setError(SIMULATE_BATTLE_ERROR);
       console.error(err);
     } finally {
       setLoading(false);
@@ -95,7 +104,7 @@ const PokemonBattleUI: FC = () => {
   return (
     <Box maxWidth={800} m="auto" p={2}>
       <Typography variant="h4" gutterBottom>
-        Battle of Pokemon
+        {BATTLE_TITLE}
       </Typography>
 
       {error && (
@@ -105,7 +114,7 @@ const PokemonBattleUI: FC = () => {
       )}
 
       <Typography variant="h6" gutterBottom>
-        Select your pokemon
+        {SELECT_POKEMON_PROMPT}
       </Typography>
       <Grid2 container spacing={2} mb={2}>
         {renderedPokemonCards}
@@ -121,7 +130,9 @@ const PokemonBattleUI: FC = () => {
           borderColor={"success"}
           boxShadow={4}
         >
-          <Typography variant="h6">{`${battleWinner.name} wins!`}</Typography>
+          <Typography variant="h6">
+            {BATTLE_WINNER_TEXT(battleWinner.name)}
+          </Typography>
         </Box>
       )}
 
@@ -143,7 +154,11 @@ const PokemonBattleUI: FC = () => {
               disabled={loading}
               sx={{ height: 50 }}
             >
-              {loading ? <CircularProgress size={24} /> : "Start Battle"}
+              {loading ? (
+                <CircularProgress size={24} />
+              ) : (
+                START_BATTLE_BUTTON_TEXT
+              )}
             </Button>
           </Grid2>
           <Grid2 size={{ xs: 12, md: 5 }}>
@@ -157,7 +172,7 @@ const PokemonBattleUI: FC = () => {
                 alignItems="center"
               >
                 <Typography variant="body1">
-                  Select a Pokemon and start battle to see opponent
+                  {OPPONENT_SELECTION_PROMPT}
                 </Typography>
               </Box>
             )}

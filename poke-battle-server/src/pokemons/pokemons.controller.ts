@@ -1,8 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { PokemonsService } from './pokemons.service';
 import { Pokemon } from './pokemon.entity';
+import { CONTROLLER_ROUTE } from "src/constants/pokemon";
 
-@Controller('pokemons')
+@Controller(CONTROLLER_ROUTE)
 export class PokemonsController {
   constructor(private readonly pokemonsService: PokemonsService) {}
 

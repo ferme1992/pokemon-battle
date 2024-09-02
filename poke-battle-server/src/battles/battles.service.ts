@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pokemon } from '../pokemons/pokemon.entity';
 import { Battle } from './battle.entity';
+import { NOT_FOUND_MESSAGE } from "src/constants/battles";
 
 @Injectable()
 export class BattleService {
@@ -18,7 +19,7 @@ export class BattleService {
     const pokemon2 = await this.pokemonRepository.findOneBy({ id: pokemonId2 });
 
     if (!pokemon1 || !pokemon2) {
-      throw new NotFoundException('One or both Pokemon not found');
+      throw new NotFoundException(NOT_FOUND_MESSAGE);
     }
 
     const [firstAttacker, secondAttacker] = this.determineOrder(
