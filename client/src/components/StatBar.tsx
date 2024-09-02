@@ -13,7 +13,8 @@ const StatBar: FC<StatBarProps> = ({ label, value }) => (
     </Typography>
     <LinearProgress
       variant="determinate"
-      value={value * 20}
+      value={value * 10}
+      color="primary"
       sx={{ flexGrow: 1, height: 10, borderRadius: 5 }}
     />
   </Box>
