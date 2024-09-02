@@ -1,34 +1,42 @@
 import {
   Box,
   Button,
-  Card,
-  CardContent,
+  CircularProgress,
   Grid2,
   Typography,
 } from "@mui/material";
 import { Pokemon } from "../types/Pokemon";
-import { FC, useEffect, useState } from "react";
-import PokemonCard from "./PokemonCard";
-import StatBar from "./StatBar";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import PokemonCard from "./PokemonSelectionCard";
 import { findAll } from "../services/Pokemon.service";
 import { pokemonBattle } from "../services/Battles.service";
+import PokemonBattleCard from "./PokemonBattleCard";
 
 const PokemonBattleUI: FC = () => {
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
   const [opponent, setOpponent] = useState<Pokemon | null>(null);
   const [battleWinner, setBattleWinner] = useState<Pokemon | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch Pokemon data on component mount
   useEffect(() => {
     const getPokemons = async () => {
-      const fetchedPokemons = await findAll();
-      setPokemons(fetchedPokemons);
+      try {
+        const fetchedPokemons = await findAll();
+        setPokemons(fetchedPokemons);
+      } catch (err) {
+        setError("Failed to fetch Pokémon data.");
+        console.error(err);
+      }
     };
 
     getPokemons();
   }, []);
 
-  const getRandomOpponent = (): Pokemon | null => {
+  // Memoized function to get a random opponent
+  const getRandomOpponent = useCallback((): Pokemon | null => {
     const possibleOpponents = pokemons.filter(
       (pokemon) => pokemon.id !== selectedPokemon?.id
     );
@@ -36,31 +44,53 @@ const PokemonBattleUI: FC = () => {
 
     const randomIndex = Math.floor(Math.random() * possibleOpponents.length);
     return possibleOpponents[randomIndex];
-  };
+  }, [pokemons, selectedPokemon]);
 
-  const handlePokemonSelect = (pokemon: Pokemon) => {
+  // Handler to select a Pokémon
+  const handlePokemonSelect = useCallback((pokemon: Pokemon) => {
     setSelectedPokemon(pokemon);
     setOpponent(null);
     setBattleWinner(null);
-  };
+  }, []);
 
-  const startBattle = async () => {
+  // Function to start the battle
+  const startBattle = useCallback(async () => {
     if (!selectedPokemon) return;
 
-    if (battleWinner) {
-      setBattleWinner(null);
-    }
-
+    setBattleWinner(null);
     const randomOpponent = getRandomOpponent();
-
     if (!randomOpponent) return;
 
     setOpponent(randomOpponent);
+    setLoading(true);
+    try {
+      const result = await pokemonBattle(selectedPokemon.id, randomOpponent.id);
+      setBattleWinner(result);
+    } catch (err) {
+      setError("Failed to simulate battle.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedPokemon, getRandomOpponent]);
 
-    const result = await pokemonBattle(selectedPokemon.id, randomOpponent.id);
-    setBattleWinner(result);
-    console.log(result);
-  };
+  // Memoized rendering of the Pokemon list
+  const renderedPokemonCards = useMemo(
+    () =>
+      pokemons.map((pokemon) => (
+        <Grid2
+          size={{ xs: 6, sm: 4, md: 2.4 }}
+          key={`Pokemon-Card-${pokemon.id}`}
+        >
+          <PokemonCard
+            pokemon={pokemon}
+            isSelected={selectedPokemon?.id === pokemon.id}
+            onClick={() => handlePokemonSelect(pokemon)}
+          />
+        </Grid2>
+      )),
+    [pokemons, selectedPokemon, handlePokemonSelect]
+  );
 
   return (
     <Box maxWidth={800} m="auto" p={2}>
@@ -68,31 +98,28 @@ const PokemonBattleUI: FC = () => {
         Battle of Pokemon
       </Typography>
 
+      {error && (
+        <Box bgcolor="error.main" color="error.contrastText" p={2} mb={2}>
+          <Typography variant="body1">{error}</Typography>
+        </Box>
+      )}
+
       <Typography variant="h6" gutterBottom>
         Select your pokemon
       </Typography>
       <Grid2 container spacing={2} mb={2}>
-        {pokemons.map((pokemon) => (
-          <Grid2
-            size={{ xs: 6, sm: 4, md: 2.4 }}
-            key={`Pokemon-Card-${pokemon.id}`}
-          >
-            <PokemonCard
-              pokemon={pokemon}
-              isSelected={selectedPokemon?.id === pokemon.id}
-              onClick={() => handlePokemonSelect(pokemon)}
-            />
-          </Grid2>
-        ))}
+        {renderedPokemonCards}
       </Grid2>
 
       {battleWinner && (
         <Box
-          bgcolor="info.main"
-          color="info.contrastText"
+          bgcolor="primary.light"
           p={2}
           mb={2}
+          border={2}
           borderRadius={1}
+          borderColor={"success"}
+          boxShadow={4}
         >
           <Typography variant="h6">{`${battleWinner.name} wins!`}</Typography>
         </Box>
@@ -101,20 +128,7 @@ const PokemonBattleUI: FC = () => {
       {selectedPokemon && (
         <Grid2 container spacing={2} alignItems="stretch">
           <Grid2 size={{ xs: 12, md: 5 }}>
-            <Card>
-              <CardContent>
-                <img
-                  src={selectedPokemon.imageUrl}
-                  alt={selectedPokemon.name}
-                  style={{ width: "100%", height: "auto" }}
-                />
-                <Typography variant="h6">{selectedPokemon.name}</Typography>
-                <StatBar label="HP" value={selectedPokemon.hp} />
-                <StatBar label="Attack" value={selectedPokemon.attack} />
-                <StatBar label="Defense" value={selectedPokemon.defense} />
-                <StatBar label="Speed" value={selectedPokemon.speed} />
-              </CardContent>
-            </Card>
+            <PokemonBattleCard pokemon={selectedPokemon} />
           </Grid2>
           <Grid2
             size={{ xs: 12, md: 2 }}
@@ -124,29 +138,17 @@ const PokemonBattleUI: FC = () => {
           >
             <Button
               variant="contained"
-              color="primary"
+              color="success"
               onClick={startBattle}
+              disabled={loading}
               sx={{ height: 50 }}
             >
-              Start Battle
+              {loading ? <CircularProgress size={24} /> : "Start Battle"}
             </Button>
           </Grid2>
           <Grid2 size={{ xs: 12, md: 5 }}>
             {opponent ? (
-              <Card>
-                <CardContent>
-                  <img
-                    src={opponent.imageUrl}
-                    alt={opponent.name}
-                    style={{ width: "100%", height: "auto" }}
-                  />
-                  <Typography variant="h6">{opponent.name}</Typography>
-                  <StatBar label="HP" value={opponent.hp} />
-                  <StatBar label="Attack" value={opponent.attack} />
-                  <StatBar label="Defense" value={opponent.defense} />
-                  <StatBar label="Speed" value={opponent.speed} />
-                </CardContent>
-              </Card>
+              <PokemonBattleCard pokemon={opponent} />
             ) : (
               <Box
                 height="100%"
