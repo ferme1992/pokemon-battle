@@ -8,9 +8,9 @@ export class BattleController {
 
   @Get()
   async startBattle(
-    @Query('pokemon1') pokemon1: string,
-    @Query('pokemon2') pokemon2: string,
+    @Query('pokemon1Id') pokemon1Id: string,
+    @Query('pokemon2Id') pokemon2Id: string,
   ): Promise<Pokemon> {
-    return this.battleService.fight(pokemon1, pokemon2);
+    return this.battleService.fight(pokemon1Id, pokemon2Id);
   }
 }
