@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PokemonsModule } from './pokemons/pokemons.module';
+import { BattlesModule } from './battles/battles.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PokemonsModule } from './pokemons/pokemons.module';
       synchronize: false, // Set to false for production and when using migrations
     }),
     PokemonsModule,
+    BattlesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
