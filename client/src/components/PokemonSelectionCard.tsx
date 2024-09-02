@@ -1,14 +1,14 @@
-import React, { FC } from "react";
+import { FC } from "react";
 import { Card, CardContent, Typography } from "@mui/material";
 import { Pokemon } from "../types/Pokemon";
 
-interface PokemonCardProps {
+interface PokemonSelectionCardProps {
   pokemon: Pokemon;
   isSelected: boolean;
   onClick: () => void;
 }
 
-const PokemonCard: FC<PokemonCardProps> = ({
+const PokemonSelectionCard: FC<PokemonSelectionCardProps> = ({
   pokemon,
   isSelected,
   onClick,
@@ -17,6 +17,8 @@ const PokemonCard: FC<PokemonCardProps> = ({
     <Card
       onClick={onClick}
       sx={{
+        boxShadow: 3,
+        borderRadius: 2,
         cursor: "pointer",
         border: isSelected ? "2px solid blue" : "none",
         "&:hover": { boxShadow: 3 },
@@ -36,4 +38,4 @@ const PokemonCard: FC<PokemonCardProps> = ({
   );
 };
 
-export default PokemonCard;
+export default PokemonSelectionCard;
