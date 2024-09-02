@@ -1,6 +1,6 @@
 import { Entity, PrimaryColumn, Column } from 'typeorm';
 
-@Entity()
+@Entity('pokemons')
 export class Pokemon {
   @PrimaryColumn()
   id: string;

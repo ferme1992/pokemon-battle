@@ -4,7 +4,7 @@ export class CreatePokemonTable1725292128683 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'pokemon',
+        name: 'pokemons',
         columns: [
           {
             name: 'id',
@@ -45,7 +45,7 @@ export class CreatePokemonTable1725292128683 implements MigrationInterface {
     );
 
     await queryRunner.query(`
-            INSERT INTO pokemon (id, name, attack, defense, hp, speed, type, imageUrl)
+            INSERT INTO pokemons (id, name, attack, defense, hp, speed, type, imageUrl)
             VALUES 
             ('pokemon-1', 'Pikachu', 4, 3, 3, 6, 'Type', 'https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/025.png'),
             ('pokemon-2', 'Charmander', 4, 3, 3, 4, 'Type', 'https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/004.png'),
@@ -56,6 +56,6 @@ export class CreatePokemonTable1725292128683 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('pokemon');
+    await queryRunner.dropTable('pokemons');
   }
 }
