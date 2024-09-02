@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Card, CardContent, CardMedia, Typography } from "@mui/material";
+import { Card, CardContent, Typography } from "@mui/material";
 import { Pokemon } from "../types/Pokemon";
 
 interface PokemonCardProps {
