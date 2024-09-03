@@ -152,7 +152,7 @@ const PokemonBattleUI: FC = () => {
               color="success"
               onClick={startBattle}
               disabled={loading}
-              sx={{ height: 50 }}
+              sx={{ height: 50, whiteSpace: "nowrap" }}
             >
               {loading ? (
                 <CircularProgress size={24} />
