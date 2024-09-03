@@ -7,11 +7,11 @@ This project consists of two separate parts: a **client** and a **server**. The 
 
 ## Project Structure
 
-\`\`\`
 root
+
 ├── /client                # React frontend application
+
 └── /poke-battle-server    # Nest.js backend server
-\`\`\`
 
 ## Getting Started
 
@@ -31,7 +31,7 @@ To work with the server, navigate to the `/poke-battle-server` directory and fol
 ```bash
 cd poke-battle-server
 # Follow the instructions in the README.md file
-\\\
+```
 
 ## License
 
